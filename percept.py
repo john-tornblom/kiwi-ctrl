@@ -19,6 +19,7 @@
 import threading
 import sysv_ipc
 import numpy
+import math
 import cv2
 
 
@@ -110,7 +111,7 @@ class CameraPerseption(Perseption):
 	    ### TODO: Calculate correct distance using lens eye calculations
 	    d = 0.05 / (y+h)
 	    delta = width/2.-(x+w)/2.
-	    theta = math.atan2(delta/d) 
+	    theta = math.atan2(delta, d) 
 
 	    # send distance and angle to handlers
             self.evt_handler(d, theta) # distance and angle to object
