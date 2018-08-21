@@ -17,6 +17,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 import time
+import logging
 import OD4Session
 
 from opendlv_standard_message_set_v0_9_6_pb2 import \
@@ -26,7 +27,7 @@ from percept import CameraPerseption
 from control import PlatoonController
 
 
-# create controller and camer perception
+logging.basicConfig(level=logging.INFO)
 session = OD4Session.OD4Session(cid=253)
 ctrl = PlatoonController(session)
 cam = CameraPerseption(ctrl.on_front_camera)
