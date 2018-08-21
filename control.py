@@ -21,41 +21,49 @@ from opendlv_standard_message_set_v0_9_6_pb2 import \
     opendlv_proxy_PedalPositionRequest as PedalPositionRequest
 
 
+import logging
+
+
+logger = logging.getLogger(__name__)
+
+
 class PlatoonController(object):
     session = None
+    distance = None
+    angle = None
     
     def __init__(self, session):
         self.session = session
 
-    def on_front_camera(self, value, value2):
+    def on_front_camera(self, distance, angle):
         '''
         Handle camera signal (ARGB)
         '''
-        print 'on front camera', value, value2
+        logger.info('front camera: %2.2f, %2.2f', distance, angle)
     
     def on_front_ultrasonic(self, value):
         '''
         Handle front-facing ultrasonic sensor (distance in meters)
         '''
-        print 'on front ultrasonic', value
+        logger.info('front ultrasonic: %2.2f', value)
 
     def on_rear_ultrasonic(self, value):
         '''
         Handle rear-facing ultrasonic sensor (distance in meters)
         '''
-        print 'on rear ultrasonic', value
+        logger.info('rear ultrasonic: %2.2f', value)
 
     def on_left_infrared(self, value):
         '''
         Handle left infrared sensor (???)
         '''
-        print 'on left infrared', value
+        logger.info('left infrared: %2.2f', value)
 
     def on_right_infrared(self, value):
         '''
         Handle right infrared sensor (???)
         '''
-        print 'on right infrared', value
+        logger.info('right infrared: %2.2f', value)
     
     def emit(self):
         '''
