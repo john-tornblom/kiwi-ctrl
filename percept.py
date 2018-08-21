@@ -108,9 +108,9 @@ class CameraPerseption(Perseption):
 	    x,y,w,h = cv2.boundingRect(c)
 	    height, width, _ = masked_img.shape
 	    ### TODO: Calculate correct distance using lens eye calculations
-	    d = 10
-	    width = width/2.-(x+w)/2.
-	    theta = math.atan2(width/d) 
+	    d = 0.05 / (y+h)
+	    delta = width/2.-(x+w)/2.
+	    theta = math.atan2(delta/d) 
 
 	    # send distance and angle to handlers
             self.evt_handler(d, theta) # distance and angle to object
