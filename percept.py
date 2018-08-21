@@ -76,7 +76,43 @@ class CameraPerseption(Perseption):
             self.on_data(img)
 
     def on_data(self, argb):
-        # TODO: Add some image processing logic here.
-        self.evt_handler(0) # distance
+
+	# one kind of green supposed to represent the post-it
+	hsv_mask = (80, 150, 150)
+	# allow some deviation in color
+	threshold = 0.24
+
+	upper_mask = (int(min(hsv_mask[0]*(1+threshold), 179)),
+		      int(min(hsv_mask[1]*(1+threshold), 255)),
+		      int(min(hsv_mask[2]*(1+threshold), 255)))
+	lower_mask = (int(max(hsv_mask[0]*(1-threshold), 0)),
+		      int(max(hsv_mask[1]*(1-threshold), 0)),
+		      int(max(hsv_mask[2]*(1-threshold), 0)))
+
+
+	### Assuming ARGB input
+	img = argb
+	# apply some blurring to help edge detection
+	img_blurred = cv2.GaussianBlur(img, (5, 5), 0)
+	hsv = cv2.cvtColor(img_blurred, cv2.COLOR_RGB2HSV)
+	# finds color mask between lower green color and upper green color
+	mask = cv2.inRange(hsv, lower_mask, upper_mask)
+	# only take the pixels allowed by the mask
+	masked_img = cv2.bitwise_and(img_blurred, img_blurred, mask=mask)
+	ret, thresh = cv2.threshold(mask, 40, 255, 0)
+	im2, contours, hierarchy = cv2.findContours(thresh, cv2.RETR_EXTERNAL,
+						    cv2.CHAIN_APPROX_NONE)
+
+	if len(contours) != 0:
+	    c = max(contours, key = cv2.contourArea)
+	    x,y,w,h = cv2.boundingRect(c)
+	    height, width, _ = masked_img.shape
+	    ### TODO: Calculate correct distance using lens eye calculations
+	    d = 10
+	    width = width/2.-(x+w)/2.
+	    theta = math.atan2(width/d) 
+
+	    # send distance and angle to handlers
+            self.evt_handler(d, theta) # distance and angle to object
             
 

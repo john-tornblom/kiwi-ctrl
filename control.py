@@ -27,11 +27,11 @@ class PlatoonController(object):
     def __init__(self, session):
         self.session = session
 
-    def on_front_camera(self, value):
+    def on_front_camera(self, value, value2):
         '''
         Handle camera signal (ARGB)
         '''
-        print 'on front camera', value
+        print 'on front camera', value, value2
     
     def on_front_ultrasonic(self, value):
         '''
