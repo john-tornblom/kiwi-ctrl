@@ -51,6 +51,12 @@ class PlatoonController(object):
     max_ang = 38.0/360. * 2 * math.pi
     max_thrust_forward = 0.25
     max_thrust_backward = 1.
+
+    # Platooning parameters
+    self.override_thrust = False # do not allow forward thrust
+    self.override_back   = False # do not allow backward thrust
+    min_distance_front = 0.3 # minimum distance to object ahead
+    min_distance_rear  = 0.3 # minimum distance to object behind
     
     def __init__(self, session):
         self.session = session
@@ -65,12 +71,16 @@ class PlatoonController(object):
         '''
         Handle front-facing ultrasonic sensor (distance in meters)
         '''
+	if value < min_distance_front:
+	    self.override_thrust = True
         logger.info('front ultrasonic: %2.2f', value)
 
     def on_rear_ultrasonic(self, value):
         '''
         Handle rear-facing ultrasonic sensor (distance in meters)
         '''
+	if value < min_distance_rear:
+	    self.override_back = True
         logger.info('rear ultrasonic: %2.2f', value)
 
     def on_left_infrared(self, value):
