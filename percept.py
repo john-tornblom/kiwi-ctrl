@@ -84,43 +84,57 @@ class CameraPerseption(Perseption):
 	# one kind of green supposed to represent the post-it
 	hsv_mask = (80, 150, 150)
 	# allow some deviation in color
-	threshold = 0.24
+	threshold = 0.3
 
 	upper_mask = (int(min(hsv_mask[0]*(1+threshold), 179)),
 		      int(min(hsv_mask[1]*(1+threshold), 255)),
 		      int(min(hsv_mask[2]*(1+threshold), 255)))
-	lower_mask = (int(max(hsv_mask[0]*(1-threshold), 0)),
+
+        lower_mask = (int(max(hsv_mask[0]*(1-threshold), 0)),
 		      int(max(hsv_mask[1]*(1-threshold), 0)),
 		      int(max(hsv_mask[2]*(1-threshold), 0)))
 
 
-	### Assuming ARGB input
+	### Convert ARGB input to HSV
 	img = argb
+        hsv = cv2.cvtColor(img, cv2.COLOR_RGB2HSV)
+
+        #avg_brightness = numpy.mean(hsv[:, :, 2])
+        
 	# apply some blurring to help edge detection
-	hsv = cv2.cvtColor(img, cv2.COLOR_RGB2HSV)
-	average_brightness = np.mean(img[:, :, 2])
 	img_blurred = cv2.GaussianBlur(hsv, (5, 5), 0)
-	# finds color mask between lower green color and upper green color
-	mask = cv2.inRange(img_blurred, lower_mask, upper_mask)
-	kernel = np.ones((5,5),np.uint8)
+
+        # finds color mask between lower green color and upper green color
+	mask = cv2.inRange(hsv, lower_mask, upper_mask)
+	kernel = numpy.ones((2,2), numpy.uint8)
 	eroded_mask = cv2.erode(mask,kernel,iterations = 5)
 	dilated_mask = cv2.dilate(mask,kernel,iterations = 5)
-	# only take the pixels allowed by the mask
-	dilated_img = cv2.bitwise_and(img_blurred, img_blurred, mask=dilated_mask)
-	ret, thresh = cv2.threshold(mask, 40, 255, 0)
+
+        
+        # only take the pixels allowed by the mask
+	dilated_img = cv2.bitwise_and(img, img, mask=dilated_mask)
+	ret, thresh = cv2.threshold(dilated_mask, 40, 255, 0)
 	im2, contours, hierarchy = cv2.findContours(thresh, cv2.RETR_EXTERNAL,
 						    cv2.CHAIN_APPROX_NONE)
+	if len(contours) == 0:
+            return
 
-	if len(contours) != 0:
-	    c = max(contours, key = cv2.contourArea)
-	    x,y,w,h = cv2.boundingRect(c)
-	    height, width, _ = masked_img.shape
-	    ### TODO: Calculate correct distance using lens eye calculations
-	    d = 0.05 / (y+h)
-	    delta = width/2.-(x+w)/2.
-	    theta = math.atan2(delta, d) 
+	c = max(contours, key = cv2.contourArea)
+	x,y,w,h = cv2.boundingRect(c)
+        
+        if True:
+            cv2.drawContours(img, contours, -1, 255, 3)
+            cv2.rectangle(img, (x,y), (x+w,y+h), (0,255,0), 2)
+            cv2.imshow("image", img);
+            cv2.waitKey(2)
 
-	    # send distance and angle to handlers
-            self.evt_handler(d, theta) # distance and angle to object
+	height, width, _ = img.shape
+	### TODO: Calculate correct distance using lens eye calculations
+	d = 0.05 / (y+h)
+	delta = width/2.-(x+w)/2.
+	theta = math.atan2(delta, d) 
+        
+	# send distance and angle to handlers
+        #self.evt_handler(d, theta) # distance and angle to object
             
 
