@@ -21,6 +21,9 @@ import sysv_ipc
 import numpy
 import math
 import cv2
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class Perseption(object):
@@ -107,8 +110,14 @@ class CameraPerseption(Perseption):
 						    cv2.CHAIN_APPROX_NONE)
 
 	if len(contours) != 0:
+            cv2.drawContours(img, contours, -1, 255, 3)
 	    c = max(contours, key = cv2.contourArea)
 	    x,y,w,h = cv2.boundingRect(c)
+
+            cv2.rectangle(masked_img,(x,y),(x+w,y+h),(0,255,0),2)
+            cv2.imshow("image", masked_img);
+            cv2.waitKey(2);
+            
 	    height, width, _ = masked_img.shape
 	    ### TODO: Calculate correct distance using lens eye calculations
 	    d = 0.05 / (y+h)
