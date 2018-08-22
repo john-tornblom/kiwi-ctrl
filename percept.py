@@ -99,6 +99,9 @@ class CameraPerseption(Perseption):
 	img = argb
         hsv = cv2.cvtColor(img, cv2.COLOR_RGB2HSV)
 
+        # "widescreen" cropping
+        hsv[360:,:] = numpy.zeros(shape=[120, 640, 3])
+        #hsv[300:,:] = numpy.zeros(shape=[180, 640, 3])
         #avg_brightness = numpy.mean(hsv[:, :, 2])
         
 	# apply some blurring to help edge detection
@@ -122,19 +125,20 @@ class CameraPerseption(Perseption):
 	c = max(contours, key = cv2.contourArea)
 	x,y,w,h = cv2.boundingRect(c)
         
-        if True:
-            cv2.drawContours(img, contours, -1, 255, 3)
-            cv2.rectangle(img, (x,y), (x+w,y+h), (0,255,0), 2)
-            cv2.imshow("image", img);
+        if False:
+            cv2.drawContours(hsv, contours, -1, 255, 3)
+            cv2.rectangle(hsv, (x,y), (x+w,y+h), (0,255,0), 2)
+            cv2.imshow("image", hsv);
             cv2.waitKey(2)
 
 	height, width, _ = img.shape
-	### TODO: Calculate correct distance using lens eye calculations
-	d = 0.05 / (y+h)
-	delta = width/2.-(x+w)/2.
-	theta = math.atan2(delta, d) 
+	d = 33.3 / h
+
+        sticker_center = x + w
+        image_center = width / 2.0
+	delta = image_center - sticker_center
+	theta = math.atan2(d, 33.3 / delta)
         
-	# send distance and angle to handlers
-        #self.evt_handler(d, theta) # distance and angle to object
-            
+        self.evt_handler(d, theta)
+
 
