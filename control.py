@@ -53,7 +53,7 @@ class PlatoonController(object):
     max_angle = 38.0/360.0 * 2 * np.pi
     min_angle = -max_angle
     
-    max_pedal_position = 0.25
+    max_pedal_position = 0.15
     min_pedal_position = -1.0
     
     def __init__(self, session):
