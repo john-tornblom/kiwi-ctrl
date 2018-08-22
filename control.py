@@ -22,7 +22,7 @@ from opendlv_standard_message_set_v0_9_6_pb2 import \
 
 
 import logging
-import numpy
+import numpy as np
 
 
 logger = logging.getLogger(__name__)
@@ -30,18 +30,19 @@ logger = logging.getLogger(__name__)
 
 class PlatoonController(object):
     session = None
-    distance = None
-    angle = None
-    
-    # Camera frequency
-    # if last reading (last found contour) too long ago, reset d error
 
+    # Sensor states
+    cam_angle = None
+    cam_distance = None
+    front_distance = None
+    left_distance = None
+    rear_distance = None     
+    right_distance = None
     
     # Controller parameters
-
-    self.Kp_theta = 0.5
-    self.Kp_acc   = 1.0
-    self.Kd_acc   = 1.0
+    Kp_theta = 0.5
+    Kp_acc   = 1.0
+    Kd_acc   = 1.0
  
     # Position error for the derivating part
     self.prev_err = 0.0
@@ -57,16 +58,29 @@ class PlatoonController(object):
     self.override_back   = False # do not allow backward thrust
     min_distance_front = 0.3 # minimum distance to object ahead
     min_distance_rear  = 0.3 # minimum distance to object behind
+
+    # Controller clipping thresholds
+    max_angle = 38.0/360.0 * 2 * np.pi
+    min_angle = -max_angle
+    
+    max_pedal_position = 0.25
+    min_pedal_position = -1.0
     
     def __init__(self, session):
         self.session = session
 
     def on_front_camera(self, distance, angle):
         '''
-        Handle camera signal (ARGB)
+        Handle distance and angle estimates from camera (distance in meters, angle in radians)
         '''
         logger.info('front camera: %2.2f, %2.2f', distance, angle)
-    
+        if angle is not None:
+            self.cam_angle = angle
+            
+        self.distance = distance
+
+        self.emit_ground_steering()
+        
     def on_front_ultrasonic(self, value):
         '''
         Handle front-facing ultrasonic sensor (distance in meters)
@@ -94,32 +108,29 @@ class PlatoonController(object):
         Handle right infrared sensor (???)
         '''
         logger.info('right infrared: %2.2f', value)
-    
-    def emit(self):
+
+    def emit_ground_steering(self):
         '''
-        Emit control signal
+        Emit ground steering control signal
         '''
-        # range: +38deg (left) .. -38deg (right).
-        # radians (DEG/180. * PI).
-	
-        steer_req = GroundSteeringRequest()
-
-	# expects angle in radians!!!
-
-	if angle != 0 and abs(angle) < max_ang:
-	    if angle > 0:
-	        steering = min(max_ang, self.Kp_theta * angle)
-            else:
-		steering = max(-max_ang, self.Kp_theta * angle)
-	steering = 0
-        steer_req.groundSteering = steering
-
-        # range: +0.25 (forward) .. -1.0 (backwards).
-        pedal_req = PedalPositionRequest()
-        pedal_req.position = 0
-
-        self.session.send(1086, pedal_req.SerializeToString());
-        self.session.send(1090, steer_reg.SerializeToString());
+        angle = self.cam_angle * self.Kp_theta
+        angle = min(self.max_angle, angle)
+        angle = max(self.min_angle, angle)
+        req = GroundSteeringRequest()
+        req.groundSteering = angle
+        self.session.send(1090, req.SerializeToString());
+        
+    def emit_pedal_position(self):
+        '''
+        Emit pedal position control signal
+        '''
+	position = 0
+        position = min(self.max_pedal_position, position)
+        position = max(self.min_pedal_position, position)
+        
+        req = PedalPositionRequest()
+        req.position = position
+        self.session.send(1086, req.SerializeToString());
         
 
     
