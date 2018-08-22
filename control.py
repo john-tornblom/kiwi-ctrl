@@ -41,9 +41,6 @@ class PlatoonController(object):
     cam_angle = 0
     cam_distance = setpoint
     front_distance = setpoint
-    left_distance = 1.0
-    rear_distance = 1.0     
-    right_distance = 1.0
     
     # Platooning parameters
     min_distance_front = 0.3 # minimum distance to object ahead
@@ -67,8 +64,7 @@ class PlatoonController(object):
         if angle is not None:
             self.cam_angle = angle
             
-        self.distance = distance
-
+        self.cam_distance = distance
         self.emit_ground_steering()
         
     def on_front_ultrasonic(self, value):
@@ -80,6 +76,7 @@ class PlatoonController(object):
         else:
             self.max_pedal_position = PlatoonController.max_pedal_position
 
+        self.front_distance = value
         self.emit_pedal_position()
             
     def on_rear_ultrasonic(self, value):
@@ -130,7 +127,7 @@ class PlatoonController(object):
 	position = self.Kp * error + self.Kd * delta
         position = min(self.max_pedal_position, position)
         position = max(self.min_pedal_position, position)
-        
+
         req = PedalPositionRequest()
         req.position = position
         self.session.send(1086, req.SerializeToString());
