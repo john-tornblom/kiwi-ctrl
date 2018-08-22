@@ -131,14 +131,14 @@ class CameraPerseption(Perseption):
             cv2.imshow("image", hsv);
             cv2.waitKey(2)
 
+        # magic numbers...
 	height, width, _ = img.shape
-	d = 33.3 / h
+	distance = 33.3 / h
 
         sticker_center = x + w
         image_center = width / 2.0
-	delta = image_center - sticker_center
-	theta = math.atan2(d, 33.3 / delta)
-        
-        self.evt_handler(d, theta)
+	angle = math.atan((sticker_center - image_center) / 1000.0) / (distance)
+
+        self.evt_handler(distance, angle)
 
 
