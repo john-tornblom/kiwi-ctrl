@@ -21,6 +21,10 @@ import sysv_ipc
 import numpy
 import math
 import cv2
+import logging
+
+
+logger = logging.getLogger(__name__)
 
 
 class Perseption(object):
