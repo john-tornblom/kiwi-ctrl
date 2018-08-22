@@ -31,18 +31,19 @@ logger = logging.getLogger(__name__)
 class PlatoonController(object):
     session = None
 
-    # Sensor states
-    cam_angle = 0
-    cam_distance = None
-    front_distance = None
-    left_distance = None
-    rear_distance = None     
-    right_distance = None
     
     # Controller parameters
     Kp   = 0.5
     Kd   = 0.0
     setpoint = 0.3
+    
+    # Sensor states
+    cam_angle = 0
+    cam_distance = setpoint
+    front_distance = setpoint
+    left_distance = 1.0
+    rear_distance = 1.0     
+    right_distance = 1.0
     
     # Platooning parameters
     min_distance_front = 0.3 # minimum distance to object ahead
@@ -112,7 +113,7 @@ class PlatoonController(object):
         '''
         Emit ground steering control signal
         '''            
-        angle = self.cam_angle * self.Kp_theta
+        angle = self.cam_angle
         angle = min(self.max_angle, angle)
         angle = max(self.min_angle, angle)
         req = GroundSteeringRequest()
