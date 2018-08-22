@@ -21,9 +21,6 @@ import sysv_ipc
 import numpy
 import math
 import cv2
-import logging
-
-logger = logging.getLogger(__name__)
 
 
 class Perseption(object):
@@ -96,10 +93,11 @@ class CameraPerseption(Perseption):
 	### Assuming ARGB input
 	img = argb
 	# apply some blurring to help edge detection
-	img_blurred = cv2.GaussianBlur(img, (5, 5), 0)
-	hsv = cv2.cvtColor(img_blurred, cv2.COLOR_RGB2HSV)
+	hsv = cv2.cvtColor(img, cv2.COLOR_RGB2HSV)
+	average_brightness = np.mean(img[:, :, 2])
+	img_blurred = cv2.GaussianBlur(hsv, (5, 5), 0)
 	# finds color mask between lower green color and upper green color
-	mask = cv2.inRange(hsv, lower_mask, upper_mask)
+	mask = cv2.inRange(img_blurred, lower_mask, upper_mask)
 	kernel = np.ones((5,5),np.uint8)
 	eroded_mask = cv2.erode(mask,kernel,iterations = 5)
 	dilated_mask = cv2.dilate(mask,kernel,iterations = 5)
@@ -110,14 +108,8 @@ class CameraPerseption(Perseption):
 						    cv2.CHAIN_APPROX_NONE)
 
 	if len(contours) != 0:
-            cv2.drawContours(img, contours, -1, 255, 3)
 	    c = max(contours, key = cv2.contourArea)
 	    x,y,w,h = cv2.boundingRect(c)
-
-            cv2.rectangle(masked_img,(x,y),(x+w,y+h),(0,255,0),2)
-            cv2.imshow("image", masked_img);
-            cv2.waitKey(2);
-            
 	    height, width, _ = masked_img.shape
 	    ### TODO: Calculate correct distance using lens eye calculations
 	    d = 0.05 / (y+h)
