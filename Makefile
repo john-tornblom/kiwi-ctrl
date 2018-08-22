@@ -14,6 +14,7 @@ opendlv_standard_message_set_v0_9_6_pb2.py: opendlv_standard_message_set_v0_9_6.
 
 docker:
 	docker build -t myapp -f Dockerfile.armhf .
-
+	docker save myapp > myapp.tar
+	
 clean:
 	rm -f *_pb2.py *pyc *.proto 
