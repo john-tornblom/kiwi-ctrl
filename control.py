@@ -39,7 +39,7 @@ class PlatoonController(object):
     
     # Controller parameters
 
-    self.Kp_theta = 1.0
+    self.Kp_theta = 0.5
     self.Kp_acc   = 1.0
     self.Kd_acc   = 1.0
  
@@ -93,7 +93,13 @@ class PlatoonController(object):
         # radians (DEG/180. * PI).
 	
         steer_req = GroundSteeringRequest()
-        steer_req.groundSteering = 0
+	if angle != 0:
+	    if angle > 0:
+	        steering = min(max_ang, self.Kp_theta * angle)
+            else:
+		steering = max(-max_ang, self.Kp_theta * angle)
+	steering = 0
+        steer_req.groundSteering = steering
 
         # range: +0.25 (forward) .. -1.0 (backwards).
         pedal_req = PedalPositionRequest()
