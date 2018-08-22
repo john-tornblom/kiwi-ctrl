@@ -34,9 +34,10 @@ class PlatoonController(object):
     
     # Controller parameters
     Kp   = 0.5
-    Kd   = 0.0
+    Kd   = 0.1
     setpoint = 0.3
     cam_filter_weight = 0.3
+    prev_error = None
     
     # Sensor states
     cam_angle = 0
@@ -124,8 +125,13 @@ class PlatoonController(object):
         Emit pedal position control signal
         '''
         error = self.front_distance - self.setpoint
-        delta = 0
-        
+        if self.prev_error is None:
+            delta = 0
+        else:
+            delta = error - self.prev_error
+
+        self.prev_error = error
+            
 	position = self.Kp * error + self.Kd * delta
         position = min(self.max_pedal_position, position)
         position = max(self.min_pedal_position, position)
@@ -135,4 +141,5 @@ class PlatoonController(object):
         self.session.send(1086, req.SerializeToString());
         
 
+        
     
