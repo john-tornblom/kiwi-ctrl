@@ -120,7 +120,7 @@ class CameraPerseption(Perseption):
 	im2, contours, hierarchy = cv2.findContours(thresh, cv2.RETR_EXTERNAL,
 						    cv2.CHAIN_APPROX_NONE)
 	if len(contours) == 0:
-            return
+            return self.evt_handler(None, None)
 
 	c = max(contours, key = cv2.contourArea)
 	x,y,w,h = cv2.boundingRect(c)
@@ -139,6 +139,6 @@ class CameraPerseption(Perseption):
         image_center = width / 2.0
 	angle = math.atan((sticker_center - image_center) / 1000.0) / (distance)
 
-        self.evt_handler(distance, angle)
+        return self.evt_handler(distance, angle)
 
 
