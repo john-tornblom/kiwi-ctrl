@@ -124,17 +124,21 @@ class PlatoonController(object):
         '''
         Emit pedal position control signal
         '''
-        error = self.cam_distance - self.setpoint
-        if self.prev_error is None:
-            delta = 0
-        else:
-            delta = error - self.prev_error
-
-        self.prev_error = error
+        if self.cam_distance is None:
+            position = 0
             
-	position = self.Kp * error + self.Kd * delta
-        position = min(self.max_pedal_position, position)
-        position = max(self.min_pedal_position, position)
+        else:
+            error = self.cam_distance - self.setpoint
+            if self.prev_error is None:
+                delta = 0
+            else:
+                delta = error - self.prev_error
+
+            self.prev_error = error
+            
+	    position = self.Kp * error + self.Kd * delta
+            position = min(self.max_pedal_position, position)
+            position = max(self.min_pedal_position, position)
 
         req = PedalPositionRequest()
         req.position = position
