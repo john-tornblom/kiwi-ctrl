@@ -93,7 +93,10 @@ class PlatoonController(object):
         # radians (DEG/180. * PI).
 	
         steer_req = GroundSteeringRequest()
-	if angle != 0:
+
+	# expects angle in radians!!!
+
+	if angle != 0 and abs(angle) < max_ang:
 	    if angle > 0:
 	        steering = min(max_ang, self.Kp_theta * angle)
             else:
