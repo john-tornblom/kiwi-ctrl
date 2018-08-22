@@ -124,7 +124,7 @@ class PlatoonController(object):
         '''
         Emit pedal position control signal
         '''
-        error = self.front_distance - self.setpoint
+        error = self.cam_distance - self.setpoint
         if self.prev_error is None:
             delta = 0
         else:
