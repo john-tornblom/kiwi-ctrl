@@ -27,8 +27,9 @@ from percept import CameraPerseption
 from control import PlatoonController
 
 
+
 logging.basicConfig(level=logging.INFO)
-session = OD4Session.OD4Session(cid=253)
+session = OD4Session.OD4Session(cid=112)
 ctrl = PlatoonController(session)
 cam = CameraPerseption(ctrl.on_front_camera)
 
