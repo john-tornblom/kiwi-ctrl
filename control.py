@@ -40,10 +40,10 @@ class PlatoonController(object):
     right_distance = None
     
     # Controller parameters
-    Kp_theta = 0.5
-    Kp_acc   = 1.0
-    Kd_acc   = 1.0
- 
+    Kp   = 0.5
+    Kd   = 0.0
+    setpoint = 0.3
+    
     # Platooning parameters
     min_distance_front = 0.3 # minimum distance to object ahead
     min_distance_rear  = 0.3 # minimum distance to object behind
@@ -78,6 +78,8 @@ class PlatoonController(object):
             self.max_pedal_position = 0.0
         else:
             self.max_pedal_position = PlatoonController.max_pedal_position
+
+        self.emit_pedal_position()
             
     def on_rear_ultrasonic(self, value):
         '''
@@ -121,7 +123,10 @@ class PlatoonController(object):
         '''
         Emit pedal position control signal
         '''
-	position = 0
+        error = self.front_distance - self.setpoint
+        delta = 0
+        
+	position = self.Kp * error + self.Kd * delta
         position = min(self.max_pedal_position, position)
         position = max(self.min_pedal_position, position)
         
