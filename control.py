@@ -22,6 +22,7 @@ from opendlv_standard_message_set_v0_9_6_pb2 import \
 
 
 import logging
+import numpy
 
 
 logger = logging.getLogger(__name__)
@@ -31,6 +32,25 @@ class PlatoonController(object):
     session = None
     distance = None
     angle = None
+    
+    # Camera frequency
+    # if last reading (last found contour) too long ago, reset d error
+
+    
+    # Controller parameters
+
+    self.Kp_theta = 1.0
+    self.Kp_acc   = 1.0
+    self.Kd_acc   = 1.0
+ 
+    # Position error for the derivating part
+    self.prev_err = 0.0
+    self.last_received_error = 0.0 # should be time
+
+    # Action clipping
+    max_ang = 38.0/360. * 2 * math.pi
+    max_thrust_forward = 0.25
+    max_thrust_backward = 1.
     
     def __init__(self, session):
         self.session = session
@@ -71,6 +91,7 @@ class PlatoonController(object):
         '''
         # range: +38deg (left) .. -38deg (right).
         # radians (DEG/180. * PI).
+	
         steer_req = GroundSteeringRequest()
         steer_req.groundSteering = 0
 
