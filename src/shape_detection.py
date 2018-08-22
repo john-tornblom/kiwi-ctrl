@@ -13,6 +13,7 @@ lower_mask = (int(max(hsv_mask[0]*(1-threshold), 0)),
 
 
 path = "test_img.jpg"
+#path = "sample01.png"
 img = cv2.imread(path)
 img = cv2.GaussianBlur(img, (25, 25), 0)
 hsv = cv2.cvtColor(img, cv2.COLOR_RGB2HSV)
@@ -34,13 +35,13 @@ if len(contours) != 0:
     
     angle_img = output
     height, width, _ = angle_img.shape
+    cv2.imwrite("out_shape.png", output)
     cv2.line(angle_img,(int(width/2.),int(height/2.)),(int((x+w)/2.),int((y+h)/2.)),(255,255,255),5)
     cv2.line(angle_img,(int(width/2.),int(height/2.)),(int(width/2.), height),(255,255,255),5)
     cv2.line(angle_img,(int(width/2.),int(height)),(int((x+w)/2.),int((y+h)/2.)),(255,255,255),5)
-    cv2.imwrite("out_angle.png", angle_img)
+    cv2.imwrite("out_angle.png", output)
     
 
     
-cv2.imwrite("out_shape.png", output)
 
 
