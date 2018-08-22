@@ -137,7 +137,7 @@ class CameraPerseption(Perseption):
 
         sticker_center = x + w
         image_center = width / 2.0
-	angle = math.atan((sticker_center - image_center) / 1000.0) / (distance)
+	angle = -math.atan((sticker_center - image_center) / 1000.0) / (distance)
 
         return self.evt_handler(distance, angle)
 
