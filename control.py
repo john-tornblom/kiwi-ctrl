@@ -64,7 +64,7 @@ class PlatoonController(object):
         '''
         if angle is not None:
             self.cam_angle = ((self.cam_filter_weight * self.cam_angle) +
-                              (1 - self.cam_filter_weight * angle))
+                              (1 - self.cam_filter_weight) * angle)
             
         self.cam_distance = distance
         self.emit_ground_steering()
