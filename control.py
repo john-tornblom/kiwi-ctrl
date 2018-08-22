@@ -32,7 +32,7 @@ class PlatoonController(object):
     session = None
 
     # Sensor states
-    cam_angle = None
+    cam_angle = 0
     cam_distance = None
     front_distance = None
     left_distance = None
@@ -44,21 +44,11 @@ class PlatoonController(object):
     Kp_acc   = 1.0
     Kd_acc   = 1.0
  
-    # Position error for the derivating part
-    self.prev_err = 0.0
-    self.last_received_error = 0.0 # should be time
-
-    # Action clipping
-    max_ang = 38.0/360. * 2 * math.pi
-    max_thrust_forward = 0.25
-    max_thrust_backward = 1.
-
     # Platooning parameters
-    self.override_thrust = False # do not allow forward thrust
-    self.override_back   = False # do not allow backward thrust
     min_distance_front = 0.3 # minimum distance to object ahead
     min_distance_rear  = 0.3 # minimum distance to object behind
-
+    proximity_threshold = 0.1 # don't run into walls or closeby trafiic
+    
     # Controller clipping thresholds
     max_angle = 38.0/360.0 * 2 * np.pi
     min_angle = -max_angle
@@ -73,7 +63,6 @@ class PlatoonController(object):
         '''
         Handle distance and angle estimates from camera (distance in meters, angle in radians)
         '''
-        logger.info('front camera: %2.2f, %2.2f', distance, angle)
         if angle is not None:
             self.cam_angle = angle
             
@@ -85,34 +74,42 @@ class PlatoonController(object):
         '''
         Handle front-facing ultrasonic sensor (distance in meters)
         '''
-	if value < min_distance_front:
-	    self.override_thrust = True
-        logger.info('front ultrasonic: %2.2f', value)
-
+        if value < self.proximity_threshold:
+            self.max_pedal_position = 0.0
+        else:
+            self.max_pedal_position = PlatoonController.max_pedal_position
+            
     def on_rear_ultrasonic(self, value):
         '''
         Handle rear-facing ultrasonic sensor (distance in meters)
         '''
-	if value < min_distance_rear:
-	    self.override_back = True
-        logger.info('rear ultrasonic: %2.2f', value)
-
+        if value < self.proximity_threshold:
+            self.min_pedal_position = 0.0
+        else:
+            self.min_pedal_position = PlatoonController.min_pedal_position
+            
     def on_left_infrared(self, value):
         '''
-        Handle left infrared sensor (???)
+        Handle left infrared sensor (distance in meters)
         '''
-        logger.info('left infrared: %2.2f', value)
-
+        if value < self.proximity_threshold:
+            self.min_angle = 0.0
+        else:
+            self.min_angle = PlatoonController.min_angle
+        
     def on_right_infrared(self, value):
         '''
-        Handle right infrared sensor (???)
+        Handle right infrared distance in meters)
         '''
-        logger.info('right infrared: %2.2f', value)
-
+        if value < self.proximity_threshold:
+            self.max_angle = 0.0
+        else:
+            self.max_angle = PlatoonController.max_angle
+        
     def emit_ground_steering(self):
         '''
         Emit ground steering control signal
-        '''
+        '''            
         angle = self.cam_angle * self.Kp_theta
         angle = min(self.max_angle, angle)
         angle = max(self.min_angle, angle)
