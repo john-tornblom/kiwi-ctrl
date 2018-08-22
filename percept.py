@@ -77,7 +77,6 @@ class CameraPerseption(Perseption):
             self.on_data(img)
 
     def on_data(self, argb):
-
 	# one kind of green supposed to represent the post-it
 	hsv_mask = (80, 150, 150)
 	# allow some deviation in color
@@ -98,8 +97,11 @@ class CameraPerseption(Perseption):
 	hsv = cv2.cvtColor(img_blurred, cv2.COLOR_RGB2HSV)
 	# finds color mask between lower green color and upper green color
 	mask = cv2.inRange(hsv, lower_mask, upper_mask)
+	kernel = np.ones((5,5),np.uint8)
+	eroded_mask = cv2.erode(mask,kernel,iterations = 5)
+	dilated_mask = cv2.dilate(mask,kernel,iterations = 5)
 	# only take the pixels allowed by the mask
-	masked_img = cv2.bitwise_and(img_blurred, img_blurred, mask=mask)
+	dilated_img = cv2.bitwise_and(img_blurred, img_blurred, mask=dilated_mask)
 	ret, thresh = cv2.threshold(mask, 40, 255, 0)
 	im2, contours, hierarchy = cv2.findContours(thresh, cv2.RETR_EXTERNAL,
 						    cv2.CHAIN_APPROX_NONE)
