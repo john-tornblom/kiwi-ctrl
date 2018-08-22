@@ -36,6 +36,7 @@ class PlatoonController(object):
     Kp   = 0.5
     Kd   = 0.0
     setpoint = 0.3
+    cam_filter_weight = 0.3
     
     # Sensor states
     cam_angle = 0
@@ -62,7 +63,8 @@ class PlatoonController(object):
         Handle distance and angle estimates from camera (distance in meters, angle in radians)
         '''
         if angle is not None:
-            self.cam_angle = angle
+            self.cam_angle = ((self.cam_filter_weight * self.cam_angle) +
+                              (1 - self.cam_filter_weight * angle))
             
         self.cam_distance = distance
         self.emit_ground_steering()
