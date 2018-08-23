@@ -82,8 +82,11 @@ class CameraPerseption(Perseption):
 
     def on_data(self, argb):
 	# one kind of green supposed to represent the post-it
-	hsv_mask = (80, 150, 150)
+	lower_mask = (40, 200, 126)
+	upper_mask = (60, 255, 180)
+	#hsv_mask = (80, 150, 150)
 	# allow some deviation in color
+	'''
 	threshold = 0.3
 
 	upper_mask = (int(min(hsv_mask[0]*(1+threshold), 179)),
@@ -93,6 +96,7 @@ class CameraPerseption(Perseption):
         lower_mask = (int(max(hsv_mask[0]*(1-threshold), 0)),
 		      int(max(hsv_mask[1]*(1-threshold), 0)),
 		      int(max(hsv_mask[2]*(1-threshold), 0)))
+	'''
 
 
 	### Convert ARGB input to HSV
