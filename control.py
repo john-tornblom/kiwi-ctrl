@@ -20,7 +20,7 @@ from opendlv_standard_message_set_v0_9_6_pb2 import \
     opendlv_proxy_GroundSteeringRequest as GroundSteeringRequest, \
     opendlv_proxy_PedalPositionRequest as PedalPositionRequest
 
-
+import atexit
 import logging
 import numpy as np
 
@@ -31,12 +31,20 @@ logger = logging.getLogger(__name__)
 class PlatoonController(object):
     session = None
 
-    
     # Controller parameters
-    Kp   = 0.5
-    Kd   = 0.1
-    setpoint = 0.3
+    Kp = 0.5
+    Kd = 0.3
     cam_filter_weight = 0.3
+    proximity_threshold = 0.1
+
+    max_angle = 38.0/360.0 * 2 * np.pi
+    min_angle = -max_angle
+    
+    max_pedal_position = 0.15
+    min_pedal_position = -1.0
+    
+    # Controller state
+    setpoint = 0.3
     prev_error = None
     
     # Sensor states
@@ -44,21 +52,19 @@ class PlatoonController(object):
     cam_distance = setpoint
     front_distance = setpoint
     
-    # Platooning parameters
-    min_distance_front = 0.3 # minimum distance to object ahead
-    min_distance_rear  = 0.3 # minimum distance to object behind
-    proximity_threshold = 0.1 # don't run into walls or closeby trafiic
-    
-    # Controller clipping thresholds
-    max_angle = 38.0/360.0 * 2 * np.pi
-    min_angle = -max_angle
-    
-    max_pedal_position = 0.15
-    min_pedal_position = -1.0
-    
     def __init__(self, session):
         self.session = session
+        atexit.register(self.reset)
 
+    def reset(self):
+        req = PedalPositionRequest()
+        req.position = 0
+        self.session.send(1086, req.SerializeToString());
+
+        req = GroundSteeringRequest()
+        req.groundSteering = 0
+        self.session.send(1090, req.SerializeToString());
+        
     def on_front_camera(self, distance, angle):
         '''
         Handle distance and angle estimates from camera (distance in meters, angle in radians)
