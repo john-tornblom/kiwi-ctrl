@@ -22,6 +22,7 @@ import numpy
 import math
 import cv2
 import logging
+import time
 
 
 logger = logging.getLogger(__name__)
@@ -65,10 +66,13 @@ class CameraPerseption(Perseption):
         cond = sysv_ipc.Semaphore(keySemCondition)
 
         while self.running:
+            start = time.time()
+            
             try:
                 cond.Z(timeout=1)
             except:
                 continue
+
             
             # with statement???
             mutex.acquire()
@@ -79,7 +83,10 @@ class CameraPerseption(Perseption):
 
             img = numpy.frombuffer(buf, numpy.uint8).reshape(480, 640, 4)
             self.on_data(img)
-
+            
+            elapsed_time = time.time() - start
+            logger.info('%2.2f Hz', 1.0 / elapsed_time)
+            
     def on_data(self, argb):
 	# one kind of green supposed to represent the post-it
 	hsv_mask = (80, 150, 150)
