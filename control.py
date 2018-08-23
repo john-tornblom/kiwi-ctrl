@@ -75,6 +75,7 @@ class PlatoonController(object):
             
         self.cam_distance = distance
         self.emit_ground_steering()
+        self.emit_pedal_position()
         
     def on_front_ultrasonic(self, value):
         '''
