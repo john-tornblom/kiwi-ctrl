@@ -89,8 +89,8 @@ class CameraPerseption(Perseption):
             
     def on_data(self, argb):
 	# one kind of green supposed to represent the post-it
-	lower_mask = (80, 80, 240)
-	upper_mask = (90, 200, 255)
+	lower_mask = (30, 200, 150)
+	upper_mask = (120, 255, 255)
 	#hsv_mask = (80, 150, 150)
 	# allow some deviation in color
 	'''
@@ -136,7 +136,7 @@ class CameraPerseption(Perseption):
 	c = max(contours, key = cv2.contourArea)
 	x,y,w,h = cv2.boundingRect(c)
 
-	if w>h: #width should not be larger than height in normal conditions
+	if w > 2*h: #width should not be larger than height in normal conditions
             return self.evt_handler(None, None)
         
         if False:
