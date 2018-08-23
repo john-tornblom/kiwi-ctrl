@@ -124,12 +124,12 @@ class CameraPerseption(Perseption):
 	eroded_mask = cv2.erode(mask,kernel,iterations = 5)
 	dilated_mask = cv2.dilate(mask,kernel,iterations = 5)
 
-        
         # only take the pixels allowed by the mask
 	dilated_img = cv2.bitwise_and(img, img, mask=dilated_mask)
 	ret, thresh = cv2.threshold(dilated_mask, 40, 255, 0)
 	im2, contours, hierarchy = cv2.findContours(thresh, cv2.RETR_EXTERNAL,
 						    cv2.CHAIN_APPROX_NONE)
+
 	if len(contours) == 0:
             return self.evt_handler(None, None)
 
@@ -137,9 +137,10 @@ class CameraPerseption(Perseption):
 	x,y,w,h = cv2.boundingRect(c)
         
         if False:
-            cv2.drawContours(hsv, contours, -1, 255, 3)
-            cv2.rectangle(hsv, (x,y), (x+w,y+h), (0,255,0), 2)
-            cv2.imshow("image", hsv);
+            imgshow = img
+            cv2.drawContours(imgshow, contours, -1, 255, 3)
+            cv2.rectangle(imgshow, (x,y), (x+w,y+h), (0,255,0), 2)
+            cv2.imshow("image", imgshow);
             cv2.waitKey(2)
 
         # magic numbers...
