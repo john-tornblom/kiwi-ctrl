@@ -135,6 +135,9 @@ class CameraPerseption(Perseption):
 
 	c = max(contours, key = cv2.contourArea)
 	x,y,w,h = cv2.boundingRect(c)
+
+	if w>h: #width should not be larger than height in normal conditions
+            return self.evt_handler(None, None)
         
         if False:
             imgshow = img
