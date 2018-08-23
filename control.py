@@ -32,9 +32,9 @@ class PlatoonController(object):
     session = None
 
     # Controller parameters
-    Kp = 0.5
-    Kd = 0.3
-    cam_filter_weight = 0.3
+    Kp = 0.3
+    Kd = 0.1
+    cam_filter_weight = 0.2
     proximity_threshold = 0.1
 
     max_angle = 38.0/360.0 * 2 * np.pi
