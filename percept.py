@@ -89,8 +89,8 @@ class CameraPerseption(Perseption):
             
     def on_data(self, argb):
 	# one kind of green supposed to represent the post-it
-	lower_mask = (40, 200, 126)
-	upper_mask = (60, 255, 180)
+	lower_mask = (80, 80, 240)
+	upper_mask = (90, 200, 255)
 	#hsv_mask = (80, 150, 150)
 	# allow some deviation in color
 	'''
